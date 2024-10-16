@@ -171,6 +171,7 @@ class AdminDbBlogPostController extends ModuleAdminController
             $this->fields_value = array(
                 'image_old' => $obj->image[1],
                 'category_post[]' => $categories_selected,
+                'scheduled_publish_date' => $obj->scheduled_publish_date,
             );
         } else {
             $this->fields_value = array(
@@ -185,6 +186,24 @@ class AdminDbBlogPostController extends ModuleAdminController
                 'icon' => 'icon-pencil'
             ),
             'input' => array(
+                array(
+                    array(
+                        'type' => 'datetime', // Tipo de campo para fecha y hora
+                        'type' => 'hidden',
+                        'label' => $this->l('Fecha de publicación programada'),
+                        'name' => 'scheduled_publish_date',
+                        'name' => 'id_dbblog_category',
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Categoría'),
+                        'name' => 'category_post',
+                        'multiple' => true,
+                        'required' => false,
+                        'required' => true,
+                        'desc' => $this->l('Selecciona la fecha y hora en que deseas que se publique este post.'),
+                        'desc' => $this->l('Selecciona todas las categorias donde quieres que aparezca el post'),
+                    )),    
                 array(
                     'type' => 'hidden',
                     'name' => 'id_dbblog_category',
@@ -336,6 +355,7 @@ class AdminDbBlogPostController extends ModuleAdminController
                     ),
                 ),
                 
+                
             ),
         );
 
@@ -372,7 +392,8 @@ class AdminDbBlogPostController extends ModuleAdminController
                 $object->image = $image_name;
                 $object->update();
             }
-
+            $object->scheduled_publish_date = Tools::getValue('scheduled_publish_date');
+            $object->update();
             // Categorias Asociadas
             if (!empty(Tools::getValue('category_post')) && count(Tools::getValue('category_post')) > 0) {
                 foreach (Tools::getValue('category_post') as $id_category) {
@@ -395,7 +416,8 @@ class AdminDbBlogPostController extends ModuleAdminController
             $image_name = $this->saveImg($object);
             $object->image = $image_name;
             $object->update();
-
+            $object->scheduled_publish_date = Tools::getValue('scheduled_publish_date');
+            $object->update();
             // Categorias Asociadas
             Db::getInstance(_PS_USE_SQL_SLAVE_)->execute("DELETE FROM " . _DB_PREFIX_ . "dbblog_category_post WHERE id_dbblog_post = '" . $object->id_dbblog_post . "'");
             if (is_array(Tools::getValue('category_post'))) {

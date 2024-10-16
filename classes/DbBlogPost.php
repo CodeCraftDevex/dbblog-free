@@ -12,6 +12,7 @@ class DbBlogPost extends ObjectModel
     public $views = 0;
     public $active = 1;
     public $index = 1;
+    public $scheduled_publish_date;
     
     public $title;
     public $short_desc;
@@ -38,7 +39,7 @@ class DbBlogPost extends ObjectModel
             'index' =>			        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
             'date_add' =>		        array('type' => self::TYPE_DATE),
             'date_upd' =>		        array('type' => self::TYPE_DATE),
-            
+            'scheduled_publish_date' => array('type' => self::TYPE_DATE),
             // Lang fields
             'short_desc' =>	        array('type' => self::TYPE_HTML, 'lang' => true, 'required' => false , 'validate' => 'isCleanHtml', 'size' => 4000),
             'large_desc' =>	        array('type' => self::TYPE_HTML, 'lang' => true, 'required' => false , 'validate' => 'isCleanHtml'),
@@ -57,6 +58,9 @@ class DbBlogPost extends ObjectModel
 
     public function add($autodate = true, $null_values = false)
     {
+        if (!Validate::isDate($this->scheduled_publish_date)) {
+            $this->scheduled_publish_date = null; 
+        }
         $default_language_id = Configuration::get('PS_LANG_DEFAULT');
         foreach ( $this->title as $k => $value ) {
             if ( preg_match( '/^[1-9]\./', $value ) ) {
@@ -77,6 +81,9 @@ class DbBlogPost extends ObjectModel
 
     public function update( $null_values = false ) {
 
+        if (!Validate::isDate($this->scheduled_publish_date)) {
+            $this->scheduled_publish_date = null; 
+        }
         foreach ( $this->title as $k => $value ) {
             if ( preg_match( '/^[1-9]\./', $value ) ) {
                 $this->title[ $k ] = '0' . $value;

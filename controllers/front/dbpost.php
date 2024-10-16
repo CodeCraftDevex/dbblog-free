@@ -38,7 +38,12 @@ class DbblogDbPostModuleFrontController extends ModuleFrontController
         if((int)$post['id'] == 0 || $post['active'] == 0){
             Tools::redirect('index.php?controller=404');
         }
-
+        // Verificamos si la fecha de publicación programada ha llegado
+        $scheduled_publish_date = $post['scheduled_publish_date'];
+        if ($scheduled_publish_date && strtotime($scheduled_publish_date) > time()) {
+            // Si la fecha actual es anterior a la fecha programada, redirigimos a 404
+            Tools::redirect('index.php?controller=404');
+        }
         // Sumamos como visto
         DbBlogPost::sumView($post['id']);
 
